@@ -9,7 +9,7 @@ export const TodoForm = () => {
 				cols={30}
 				rows={2}
 				className='w-full border rounded-lg mb-2 p-4'
-				placeholder='What is happening'
+				placeholder='Input todo details'
 			/>
 			<div className='flex justify-end'>
 				<div>
