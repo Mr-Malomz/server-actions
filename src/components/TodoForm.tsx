@@ -10,6 +10,7 @@ export const TodoForm = () => {
 				rows={2}
 				className='w-full border rounded-lg mb-2 p-4'
 				placeholder='Input todo details'
+				required
 			/>
 			<div className='flex justify-end'>
 				<div>
