@@ -1,0 +1,6 @@
+{
+  "databaseURL": "https://malomo-demola-s-workspace-76etmb.eu-central-1.xata.sh/db/todo",
+  "codegen": {
+    "output": "src/xata.ts"
+  }
+}

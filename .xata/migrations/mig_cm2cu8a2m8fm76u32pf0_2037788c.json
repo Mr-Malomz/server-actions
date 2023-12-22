@@ -1,0 +1,13 @@
+{
+  "id": "mig_cm2cu8a2m8fm76u32pf0",
+  "parentID": "mig_cm2bs1cdus6c15laldd0",
+  "checksum": "1:2037788c2a0cd5d1608697a9e0714c919ce30d835239ec430300cdfa6d7bfb79",
+  "operations": [
+    {
+      "renameTable": {
+        "newName": "Todo",
+        "oldName": "todo"
+      }
+    }
+  ]
+}

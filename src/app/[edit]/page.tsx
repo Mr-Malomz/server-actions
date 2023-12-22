@@ -1,8 +1,13 @@
 import { EditTodoForm } from '@/components/EditTodoForm';
+import { xataClient } from '@/utils/xataClient';
 import { X } from 'lucide-react';
 import Link from 'next/link';
 
-export default async function Page() {
+const xata = xataClient();
+
+export default async function Page({ params }: { params: { edit: string } }) {
+	const todo = await xata.db.Todo.read(params.edit);
+
 	return (
 		<div className={`relative z-10 open-nav `}>
 			<div className='fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity'></div>
@@ -14,7 +19,7 @@ export default async function Page() {
 							<Link href='/' className='flex justify-end mb-2'>
 								<X className='cursor-pointer' />
 							</Link>
-							<EditTodoForm />
+							<EditTodoForm todo={todo!} />
 						</div>
 					</div>
 				</div>
