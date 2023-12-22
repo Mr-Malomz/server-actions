@@ -14,7 +14,7 @@ export const TodoForm = () => {
 			/>
 			<div className='flex justify-end'>
 				<div>
-					<Button title='Post' />
+					<Button title='Create' />
 				</div>
 			</div>
 		</form>

@@ -1,4 +1,5 @@
 'use client';
+
 import { Trash2 } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
 
