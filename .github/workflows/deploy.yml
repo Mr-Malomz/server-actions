@@ -41,6 +41,7 @@ jobs:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 2226 # Your custom SSH port
           source: ".next/,public/,package.json,package-lock.json,.env.production,next.config.js"
           target: "${{ secrets.VM_DEPLOY_PATH }}"
           strip_components: 0
@@ -52,6 +53,7 @@ jobs:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 2226 # Your custom SSH port
           script: |
             cd ${{ secrets.VM_DEPLOY_PATH }}
             npm ci --production
