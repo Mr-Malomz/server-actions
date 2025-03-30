@@ -1,0 +1,61 @@
+name: Deploy Next.js to VM
+
+on:
+  push:
+    branches: [ main ] # Change this if your default branch is different
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18' # Adjust based on your Node.js version preference
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Next.js app
+        run: npm run build
+        
+      # Optional: Run tests
+      - name: Run tests
+        run: npm test
+        continue-on-error: true
+
+      # Create .env file if needed (use GitHub secrets for sensitive info)
+      - name: Create production env file
+        run: |
+          echo "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" > .env.production
+          # Add other environment variables as needed
+
+      # Deploy to your VM using SCP
+      - name: Deploy to VM
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: ".next/,public/,package.json,package-lock.json,.env.production,next.config.js"
+          target: "${{ secrets.VM_DEPLOY_PATH }}"
+          strip_components: 0
+
+      # Run post-deployment commands on VM
+      - name: Execute deployment commands
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ${{ secrets.VM_DEPLOY_PATH }}
+            npm ci --production
+            pm2 stop nextjs-app || true
+            pm2 start npm --name "nextjs-app" -- start
+            # Or if using systemd service:
+            # sudo systemctl restart nextjs-app.service
