@@ -34,14 +34,12 @@ jobs:
           echo "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" > .env.production
           # Add other environment variables as needed
 
-      - name: Debug SSH Key
+      - name: Debug Connection
         run: |
-          echo "Private key:"
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" | head -n 3
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > key.pem
           chmod 600 key.pem
-          ssh-keygen -l -f key.pem  # Check if key is valid
-
+          ssh -vvv -i key.pem -p 2226 ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "echo Connected"
+    
       # Deploy to your VM using SCP
       - name: Deploy to VM
         uses: appleboy/scp-action@master
@@ -53,8 +51,8 @@ jobs:
           source: ".next/,public/,package.json,package-lock.json,.env.production,next.config.js"
           target: "${{ secrets.VM_DEPLOY_PATH }}"
           ssh_options: |
-            IdentitiesOnly=yes
-            StrictHostKeyChecking=no
+            IIdentitiesOnly=yes
+            PubkeyAcceptedKeyTypes=ssh-ed25519
 
       # Run post-deployment commands on VM
       - name: Execute deployment commands
