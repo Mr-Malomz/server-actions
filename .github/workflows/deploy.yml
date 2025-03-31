@@ -34,25 +34,24 @@ jobs:
           echo "NEXT_PUBLIC_API_URL=${{ secrets.NEXT_PUBLIC_API_URL }}" > .env.production
           # Add other environment variables as needed
 
-      - name: Debug Connection
+      - name: Setup known hosts
         run: |
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > key.pem
-          chmod 600 key.pem
-          ssh -vvv -i key.pem -p 2226 ${{ secrets.VM_USER }}@${{ secrets.VM_HOST }} "echo Connected"
-    
-      # Deploy to your VM using SCP
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+          # Verify the keys were added
+          cat ~/.ssh/known_hosts
+
       - name: Deploy to VM
         uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 2226 # Your custom SSH port
-          source: ".next/,public/,package.json,package-lock.json,.env.production,next.config.js"
-          target: "${{ secrets.VM_DEPLOY_PATH }}"
+          port: 2226  # Your mapped port
           ssh_options: |
-            IIdentitiesOnly=yes
-            PubkeyAcceptedKeyTypes=ssh-ed25519
+            IdentitiesOnly=yes
+            PubkeyAcceptedKeyTypes=ssh-ed25519,rsa-sha2-256,rsa-sha2-512,ecdsa-sha2-nistp256
 
       # Run post-deployment commands on VM
       - name: Execute deployment commands
