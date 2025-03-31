@@ -50,8 +50,12 @@ jobs:
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 2226
-          source: ".next/*,public/*,package.json,package-lock.json,.env.production,next.config.js"
-          target: "${{ secrets.VM_DEPLOY_PATH }}"
+          script: |
+            echo "Successfully connected!"
+          ssh_options: |
+            IdentitiesOnly=yes
+            PubkeyAcceptedAlgorithms=+ssh-ed25519
+            HostKeyAlgorithms=ssh-ed25519
 
       # Run post-deployment commands on VM
       - name: Execute deployment commands
