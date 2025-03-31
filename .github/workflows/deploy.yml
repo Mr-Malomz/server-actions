@@ -43,6 +43,23 @@ jobs:
           # Verify the keys were added
           cat ~/.ssh/known_hosts
 
+      - name: Add VM to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KNOWN_HOSTS }}" >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Build Next.js app
+        run: |
+          npm run build
+          ls -la .next/  # Verify build output exists
+      
+      - name: Create deployment package
+        run: |
+          mkdir -p deploy
+          cp -r .next public package.json package-lock.json .env.production next.config.js deploy/
+          tar -czvf deploy.tar.gz -C deploy .
+      
       - name: Deploy to VM
         uses: appleboy/scp-action@master
         with:
@@ -50,12 +67,22 @@ jobs:
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 2226
+          source: "deploy.tar.gz"
+          target: "${{ secrets.VM_DEPLOY_PATH }}"
+          overwrite: true
+      
+      - name: Extract and restart on VM
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 2226
           script: |
-            echo "Successfully connected!"
-          ssh_options: |
-            IdentitiesOnly=yes
-            PubkeyAcceptedAlgorithms=+ssh-ed25519
-            HostKeyAlgorithms=ssh-ed25519
+            cd "${{ secrets.VM_DEPLOY_PATH }}"
+            tar -xzvf deploy.tar.gz
+            npm ci --production
+            pm2 restart nextjs-app || pm2 start npm --name "nextjs-app" -- start
 
       # Run post-deployment commands on VM
       - name: Execute deployment commands
