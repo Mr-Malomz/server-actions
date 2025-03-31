@@ -45,6 +45,9 @@ jobs:
           source: ".next/,public/,package.json,package-lock.json,.env.production,next.config.js"
           target: "${{ secrets.VM_DEPLOY_PATH }}"
           strip_components: 0
+          ssh_options: |
+            StrictHostKeyChecking=no
+            UserKnownHostsFile=/dev/null
 
       # Run post-deployment commands on VM
       - name: Execute deployment commands
