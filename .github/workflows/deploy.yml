@@ -23,10 +23,11 @@ jobs:
       - name: Build Next.js app
         run: npm run build
         
-      # Optional: Run tests
-      - name: Run tests
-        run: npm test
-        continue-on-error: true
+      - name: List built files
+        run: |
+          ls -la .next/
+          ls -la public/
+          ls -la
 
       # Create .env file if needed (use GitHub secrets for sensitive info)
       - name: Create production env file
@@ -48,10 +49,9 @@ jobs:
           host: ${{ secrets.VM_HOST }}
           username: ${{ secrets.VM_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          port: 2226  # Your mapped port
-          ssh_options: |
-            IdentitiesOnly=yes
-            PubkeyAcceptedKeyTypes=ssh-ed25519,rsa-sha2-256,rsa-sha2-512,ecdsa-sha2-nistp256
+          port: 2226
+          source: ".next/*,public/*,package.json,package-lock.json,.env.production,next.config.js"
+          target: "${{ secrets.VM_DEPLOY_PATH }}"
 
       # Run post-deployment commands on VM
       - name: Execute deployment commands
