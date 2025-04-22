@@ -26,9 +26,10 @@ jobs:
       - name: Copy image to remote server
         uses: appleboy/scp-action@v0.1.4
         with:
-          host: ${{ secrets.REMOTE_HOST }}
-          username: ${{ secrets.REMOTE_USER }}
-          key: ${{ secrets.REMOTE_SSH_KEY }}
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 2226
           source: nextjs-app.tar
           target: ~/nextjs-app.tar
 
