@@ -1,0 +1,46 @@
+name: Build and Deploy Next.js App
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: |
+          docker build -t nextjs-app .
+
+      - name: Save Docker image as tarball
+        run: |
+          docker save nextjs-app -o nextjs-app.tar
+
+      - name: Copy image to remote server
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          key: ${{ secrets.REMOTE_SSH_KEY }}
+          source: nextjs-app.tar
+          target: ~/nextjs-app.tar
+
+      - name: Deploy and run on remote server
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 2226
+          script: |
+            docker load -i ~/nextjs-app.tar
+            docker stop nextjs-app || true
+            docker rm nextjs-app || true
+            docker run -d --name nextjs-app -p 3000:3000 nextjs-app
