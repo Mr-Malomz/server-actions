@@ -31,9 +31,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 2226
           source: nextjs-app.tar
-          target: .
+          target: ~/
           rm: true
-          strip_components: 0
+
 
       - name: Deploy and run on remote server
         uses: appleboy/ssh-action@v1.0.0
