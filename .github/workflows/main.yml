@@ -31,7 +31,9 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 2226
           source: nextjs-app.tar
-          target: ~/nextjs-app.tar
+          target: .
+          rm: true
+          strip_components: 0
 
       - name: Deploy and run on remote server
         uses: appleboy/ssh-action@v1.0.0
@@ -41,8 +43,10 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: 2226
           script: |
+            ls -lah ~/
             docker load -i ~/nextjs-app.tar
             docker stop nextjs-app || true
             docker rm nextjs-app || true
             docker run -d --restart unless-stopped --name nextjs-app -p 3000:3000 nextjs-app
+
 
